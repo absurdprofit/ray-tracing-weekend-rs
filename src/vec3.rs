@@ -8,36 +8,36 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
-  fn new() -> Vec3 {
+  pub fn new() -> Vec3 {
     Vec3 {
       e: (0.0, 0.0, 0.0)
     }
   }
 
-  fn from_tuple(e: (f64, f64, f64)) -> Vec3 {
+  pub fn from_tuple(e: (f64, f64, f64)) -> Vec3 {
     Vec3 {
       e
     }
   }
 
-  fn length(&self) -> f64 {
+  pub fn length(&self) -> f64 {
     self.length_squared().sqrt()
   }
 
-  fn length_squared(&self) -> f64 {
+  pub fn length_squared(&self) -> f64 {
     self.e.0 * self.e.0 + self.e.1 * self.e.1 + self.e.2 * self.e.2
   }
 
-  fn near_zero(self) -> bool {
+  pub fn near_zero(&self) -> bool {
     let s = 1e-8;
     (self.e.0.abs() < s) && (self.e.1.abs() < s) && (self.e.2.abs() < s)
   }
 
-  fn random() -> Vec3 {
+  pub fn random() -> Vec3 {
     Vec3::from_tuple((random_double(), random_double(), random_double()))
   }
 
-  fn bounded_random(min: f64, max: f64) -> Vec3 {
+  pub fn bounded_random(min: f64, max: f64) -> Vec3 {
     Vec3::from_tuple((
       bounded_random_double(min, max),
       bounded_random_double(min, max),
@@ -175,12 +175,12 @@ pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
   ))
 }
 
-fn unit_vector(v: Vec3) -> Vec3 {
+pub fn unit_vector(v: Vec3) -> Vec3 {
   let length = v.length();
   v / length
 }
 
-fn random_in_unit_disk() -> Vec3 {
+pub fn random_in_unit_disk() -> Vec3 {
   loop {
     let p = Vec3::from_tuple((
       bounded_random_double(-1.0, 1.0),
@@ -193,7 +193,7 @@ fn random_in_unit_disk() -> Vec3 {
   };
 }
 
-fn random_unit_vector() -> Vec3 {
+pub fn random_unit_vector() -> Vec3 {
   loop {
     let p = Vec3::bounded_random(-1.0, 1.0);
     let lensq = p.length_squared();
@@ -203,7 +203,7 @@ fn random_unit_vector() -> Vec3 {
   };
 }
 
-fn random_on_hemisphere(normal: &Vec3) -> Vec3 {
+pub fn random_on_hemisphere(normal: &Vec3) -> Vec3 {
   let on_unit_sphere = random_unit_vector();
   if dot(&on_unit_sphere, normal) > 0.0 {
     return on_unit_sphere;
@@ -212,12 +212,12 @@ fn random_on_hemisphere(normal: &Vec3) -> Vec3 {
   }
 }
 
-fn reflect(v: Vec3, n: Vec3) -> Vec3 {
+pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
   let dot_product = dot(&v, &n);
   v - 2.0 * dot_product * n
 }
 
-fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
+pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
   let cos_theta = dot(&-uv.clone(), &n).min(1.0);
   let r_out_perp = etai_over_etat * (uv + cos_theta * n.clone());
   let r_out_parallel = -((1.0 - r_out_perp.length_squared()).abs()).sqrt() * n;
