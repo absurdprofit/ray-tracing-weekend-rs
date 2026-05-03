@@ -2,7 +2,7 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub};
 
 use crate::common::{bounded_random_double, random_double};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Vec3 {
   pub e: (f64, f64, f64)
 }

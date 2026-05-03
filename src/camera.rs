@@ -1,16 +1,18 @@
 use crate::{colour::{Colour, write_colour}, common::{INFINITY, degrees_to_radians, random_double}, hittable::{Hittable}, hittable_list::HittableList, interval::Interval, material::Material, ray::Ray, vec3::{Point3, Vec3, cross, random_in_unit_disk, unit_vector}};
 use std::io::{BufWriter, Write, Result};
 
+pub enum Resolution {
+  SD,
+  HD,
+  FHD,
+  QHD,
+  UHD
+}
+
 pub struct Camera<W: Write> {
   writer: BufWriter<W>,
-  defocus_disk_u: Vec3,
-  defocus_disk_v: Vec3,
-  defocus_radius: f64,
   image_width: u16,
-  u: Vec3,
-  v: Vec3,
-  w: Vec3,
-  pub aspect_ratio: f32,
+  pub aspect_ratio: f64,
   pub samples_per_pixel: u8,
   pub max_depth: i16,
   pub v_fov_deg: f64,
@@ -26,14 +28,8 @@ impl<W: Write> Camera<W> {
     let look_from = Point3::from_tuple((0.0, 0.0, 0.0));
     let look_at = Point3::from_tuple((0.0, 0.0, -1.0));
     let v_up = Vec3::from_tuple((0.0, 1.0, 0.0));
-    let w = unit_vector(look_from.clone() - look_at.clone());
-    let u = unit_vector(cross(&v_up, &w));
-    let v = cross(&w, &u);
     let defocus_angle_deg = 0.0;
     let focus_distance = 10.0;
-    let defocus_radius = focus_distance * degrees_to_radians(defocus_angle_deg / 2.0).tan();
-    let defocus_disk_u = u.clone() * defocus_radius;
-    let defocus_disk_v = v.clone() * defocus_radius;
     Self {
       writer,
       aspect_ratio: 16.0 / 9.0,
@@ -44,14 +40,8 @@ impl<W: Write> Camera<W> {
       look_from,
       look_at,
       v_up,
-      defocus_radius,
       defocus_angle_deg,
       focus_distance,
-      v,
-      w,
-      u,
-      defocus_disk_u,
-      defocus_disk_v
     }
   }
 
@@ -65,7 +55,7 @@ impl<W: Write> Camera<W> {
     self.writer.write_all(b"\n255\n")?;
     for j in 0..image_height {
       let percentage = (j as f64 / (image_height - 1) as f64) * 100.0;
-      print!("\rRendering: {}%", percentage);
+      print!("\rRendering: {:.2}%", percentage);
       for i in 0..self.image_width {
         let mut pixel_colour = Colour::new();
         for _ in 0..self.samples_per_pixel {
@@ -78,7 +68,21 @@ impl<W: Write> Camera<W> {
       }
     }
 
+    self.writer.flush()?;
+
     Ok(())
+  }
+
+  pub fn set_resolution(&mut self, resolution: Resolution) {
+    let image_width = match resolution {
+      Resolution::SD => 854,
+      Resolution::HD => 1280,
+      Resolution::FHD => 1920,
+      Resolution::QHD => 2560,
+      Resolution::UHD => 3840
+    };
+    self.set_aspect_ratio(16.0 / 9.0);
+    self.set_image_width(image_width);
   }
 
   pub fn set_image_width(&mut self, image_width: u16) {
@@ -88,15 +92,33 @@ impl<W: Write> Camera<W> {
       self.image_width = aspect_ratio;
     }
   }
-  pub fn set_aspect_ratio(&mut self, aspect_ratio: f32) {
+  pub fn set_aspect_ratio(&mut self, aspect_ratio: f64) {
     self.aspect_ratio = aspect_ratio;
     self.set_image_width(self.image_width); // trigger image width validation
   }
 
+  fn w(&self) -> Vec3 {
+    unit_vector(self.look_from.clone() - self.look_at.clone())
+  }
+  fn u(&self) -> Vec3 {
+    unit_vector(cross(&self.v_up, &self.w()))
+  }
+  fn v(&self) -> Vec3 {
+    cross(&self.w(), &self.u())
+  }
+  fn defocus_disk_u(&self) -> Vec3 {
+    self.u().clone() * self.defocus_radius()
+  }
+  fn defocus_disk_v(&self) -> Vec3 {
+    self.v().clone() * self.defocus_radius()
+  }
+  fn defocus_radius(&self) -> f64 {
+    self.focus_distance * degrees_to_radians(self.defocus_angle_deg / 2.0).tan()
+  }
   fn image_height(&self) -> u16 {
-    let aspect_ratio = self.aspect_ratio as u16;
+    let aspect_ratio = self.aspect_ratio;
 
-    self.image_width / aspect_ratio
+    (self.image_width as f64 / aspect_ratio) as u16
   }
   fn pixel_samples_scale(&self) -> f64 {
     1.0 / self.samples_per_pixel as f64
@@ -107,7 +129,7 @@ impl<W: Write> Camera<W> {
   fn pixel00_loc(&self) -> Point3 {
     // Calculate the location of the upper left pixel.
     let viewport_upper_left = self.centre().clone()
-      - (self.focus_distance * self.w.clone())
+      - (self.focus_distance * self.w().clone())
       - self.viewport_u() / 2.0 - self.viewport_v() / 2.0;
     viewport_upper_left + 0.5 * (self.pixel_delta_u() + self.pixel_delta_v())
   }
@@ -117,15 +139,13 @@ impl<W: Write> Camera<W> {
     2.0 * h * self.focus_distance
   }
   fn viewport_width(&self) -> f64 {
-    self.viewport_height() * (self.image_width as f64 / self.image_height() as f64)
+    self.viewport_height() * self.aspect_ratio
   }
   fn viewport_u(&self) -> Vec3 {
-    let image_width = self.image_width as f64;
-    let viewport_width = self.viewport_height() * (image_width / self.image_height() as f64);
-    viewport_width * self.u.clone() // Vector across viewport horizontal edge
+    self.viewport_width() * self.u().clone() // Vector across viewport horizontal edge
   }
   fn viewport_v(&self) -> Vec3 {
-    self.viewport_height() * -self.v.clone() // Vector down viewport vertical edge
+    self.viewport_height() * -self.v().clone() // Vector down viewport vertical edge
   }
   fn pixel_delta_u(&self) -> Vec3 {
     self.viewport_u() / self.image_width as f64
@@ -156,7 +176,7 @@ impl<W: Write> Camera<W> {
 
   fn defocus_disk_sample(&self) -> Point3 {
     let p = random_in_unit_disk();
-    self.centre().clone() + (p.x() * self.defocus_disk_u.clone() + (p.y() * self.defocus_disk_v.clone()))
+    self.centre().clone() + (p.x() * self.defocus_disk_u().clone() + (p.y() * self.defocus_disk_v().clone()))
   }
 
   fn ray_colour<T: Hittable>(&self, r: Ray, depth: i16, world: &HittableList<T>) -> Colour {
@@ -168,7 +188,7 @@ impl<W: Write> Camera<W> {
       let mut scattered = Ray::new(Vec3::new(), Vec3::new());
       let mut attenuation = Colour::new();
       if rec.material.scatter(r.clone(), &rec, &mut attenuation, &mut scattered) {
-        return attenuation * self.ray_colour(scattered, -(-depth), world);
+        return attenuation * self.ray_colour(scattered, depth - 1, world);
       }
       return Colour::new();
     }

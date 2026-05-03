@@ -1,7 +1,8 @@
 pub mod metal;
 pub mod vanta_black;
 pub mod lambertian;
-use crate::{colour::Colour, hittable::HitRecord, material::{lambertian::Lambertian, metal::Metal, vanta_black::VantaBlack}, ray::Ray};
+pub mod dielectric;
+use crate::{colour::Colour, hittable::HitRecord, material::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal, vanta_black::VantaBlack}, ray::Ray};
 
 pub trait Material {
   fn scatter(
@@ -16,7 +17,8 @@ pub trait Material {
 pub enum MaterialKind {
   VantaBlack(VantaBlack),
   Metal(Metal),
-  Lambertian(Lambertian)
+  Lambertian(Lambertian),
+  Dielectric(Dielectric)
 }
 
 impl Material for MaterialKind {
@@ -30,7 +32,8 @@ impl Material for MaterialKind {
     match self {
       MaterialKind::VantaBlack(m) => m.scatter(r_in, rec, attenuation, scattered),
       MaterialKind::Metal(m) => m.scatter(r_in, rec, attenuation, scattered),
-      MaterialKind::Lambertian(m) => m.scatter(r_in, rec, attenuation, scattered)
+      MaterialKind::Lambertian(m) => m.scatter(r_in, rec, attenuation, scattered),
+      MaterialKind::Dielectric(m) => m.scatter(r_in, rec, attenuation, scattered)
     }  
   }
 }
