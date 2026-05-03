@@ -1,5 +1,5 @@
 # Ray Tracing in One Weekend — Rust Implementation
-My own Rust port of the *Ray Tracing in One Weekend* C++ project.  
+My own Rust port of the [*Ray Tracing in One Weekend* C++ project](https://github.com/absurdprofit/ray-tracing-weekend).  
 The project renders simple 3D scenes using spheres, materials, lighting approximation, antialiasing, depth of field, and recursive ray scattering.
 
 ## Features
