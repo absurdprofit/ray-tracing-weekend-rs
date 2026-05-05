@@ -1,4 +1,4 @@
 {
-  "files.autoSaveWhenNoErrors": false,
+  "files.autoSaveWhenNoErrors": true,
   "editor.formatOnSave": true
 }
