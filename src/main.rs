@@ -10,11 +10,10 @@ mod vec3;
 use crate::{
     camera::Camera,
     colour::Colour,
-    hittable::{HittableKind, sphere::Sphere},
+    hittable::sphere::Sphere,
     hittable_list::HittableList,
     material::{
-        MaterialKind, dielectric::Dielectric, lambertian::Lambertian, metal::Metal,
-        vanta_black::VantaBlack,
+        dielectric::Dielectric, lambertian::Lambertian, metal::Metal, vanta_black::VantaBlack,
     },
     vec3::{Point3, Vec3},
 };
@@ -27,45 +26,61 @@ fn main() -> Result<()> {
     let mut camera = Camera::new(writer);
     let mut world = HittableList::new();
 
-    let material_ground =
-        MaterialKind::Lambertian(Lambertian::new(Colour::from_tuple((0.8, 0.8, 0.0))));
-    let material_centre =
-        MaterialKind::Lambertian(Lambertian::new(Colour::from_tuple((0.1, 0.2, 0.5))));
-    let material_left = MaterialKind::Dielectric(Dielectric::new(1.50));
-    let material_bubble = MaterialKind::Dielectric(Dielectric::new(1.00 / 1.50));
-    let material_right = MaterialKind::Metal(Metal::new(Colour::from_tuple((0.8, 0.6, 0.2)), 1.0));
-    let material_vanta_black = MaterialKind::VantaBlack(VantaBlack);
+    let material_ground = Lambertian::new(Colour::from_tuple((0.8, 0.8, 0.0)));
+    let material_centre = Lambertian::new(Colour::from_tuple((0.1, 0.2, 0.5)));
+    let material_left = Dielectric::new(1.50);
+    let material_bubble = Dielectric::new(1.00 / 1.50);
+    let material_right = Metal::new(Colour::from_tuple((0.8, 0.6, 0.2)), 1.0);
+    let material_vanta_black = VantaBlack;
 
-    world.objects.push(HittableKind::Sphere(Sphere::new(
-        Point3::from_tuple((0.0, -100.5, -1.0)),
-        100.0,
-        material_ground,
-    )));
-    world.objects.push(HittableKind::Sphere(Sphere::new(
-        Point3::from_tuple((0.0, 0.0, -1.2)),
-        0.5,
-        material_centre,
-    )));
-    world.objects.push(HittableKind::Sphere(Sphere::new(
-        Point3::from_tuple((-1.0, 0.0, -1.0)),
-        0.5,
-        material_left,
-    )));
-    world.objects.push(HittableKind::Sphere(Sphere::new(
-        Point3::from_tuple((-1.0, 0.0, -1.0)),
-        0.4,
-        material_bubble,
-    )));
-    world.objects.push(HittableKind::Sphere(Sphere::new(
-        Point3::from_tuple((1.0, 0.0, -1.0)),
-        0.5,
-        material_right,
-    )));
-    world.objects.push(HittableKind::Sphere(Sphere::new(
-        Point3::from_tuple((2.0, 0.5, -2.0)),
-        0.5,
-        material_vanta_black,
-    )));
+    world.objects.push(
+        Sphere::new(
+            Point3::from_tuple((0.0, -100.5, -1.0)),
+            100.0,
+            material_ground.into(),
+        )
+        .into(),
+    );
+    world.objects.push(
+        Sphere::new(
+            Point3::from_tuple((0.0, 0.0, -1.2)),
+            0.5,
+            material_centre.into(),
+        )
+        .into(),
+    );
+    world.objects.push(
+        Sphere::new(
+            Point3::from_tuple((-1.0, 0.0, -1.0)),
+            0.5,
+            material_left.into(),
+        )
+        .into(),
+    );
+    world.objects.push(
+        Sphere::new(
+            Point3::from_tuple((-1.0, 0.0, -1.0)),
+            0.4,
+            material_bubble.into(),
+        )
+        .into(),
+    );
+    world.objects.push(
+        Sphere::new(
+            Point3::from_tuple((1.0, 0.0, -1.0)),
+            0.5,
+            material_right.into(),
+        )
+        .into(),
+    );
+    world.objects.push(
+        Sphere::new(
+            Point3::from_tuple((2.0, 0.5, -2.0)),
+            0.5,
+            material_vanta_black.into(),
+        )
+        .into(),
+    );
 
     camera.set_resolution(camera::Resolution::QHD);
     camera.samples_per_pixel = 100;
