@@ -1,7 +1,6 @@
 use crate::{
     colour::{Colour, write_colour},
     common::{INFINITY, degrees_to_radians, random_double},
-    hittable::Hittable,
     hittable_list::HittableList,
     interval::Interval,
     material::Material,
@@ -54,7 +53,7 @@ impl<W: Write> Camera<W> {
         }
     }
 
-    pub fn render<T: Hittable>(&mut self, world: &HittableList<T>) -> Result<()> {
+    pub fn render(&mut self, world: &HittableList) -> Result<()> {
         let image_height = self.image_height();
         self.writer.write_all(b"P3\n")?;
         self.writer
@@ -195,7 +194,7 @@ impl<W: Write> Camera<W> {
             + (p.x() * self.defocus_disk_u().clone() + (p.y() * self.defocus_disk_v().clone()))
     }
 
-    fn ray_colour<T: Hittable>(&self, r: Ray, depth: i16, world: &HittableList<T>) -> Colour {
+    fn ray_colour(&self, r: Ray, depth: i16, world: &HittableList) -> Colour {
         if depth <= 0 {
             return Colour::new();
         }

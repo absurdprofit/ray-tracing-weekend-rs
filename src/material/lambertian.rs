@@ -1,5 +1,6 @@
 use crate::{
-    colour::Colour, hittable::HitRecord, material::Material, ray::Ray, vec3::random_unit_vector,
+    colour::Colour, hittable::hit_record::HitRecord, material::Material, ray::Ray,
+    vec3::random_unit_vector,
 };
 
 pub struct Lambertian {

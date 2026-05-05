@@ -1,4 +1,8 @@
-use crate::{interval::Interval, material::MaterialKind, ray::Ray, vec3::*};
+use crate::{
+    material::MaterialKind,
+    ray::Ray,
+    vec3::{Point3, Vec3, dot},
+};
 
 pub struct HitRecord<'a> {
     pub point: Point3,
@@ -17,8 +21,4 @@ impl<'a> HitRecord<'a> {
             false => -outward_normal,
         };
     }
-}
-
-pub trait Hittable {
-    fn hit<'a>(&'a self, r: &Ray, ray_t: &Interval, rec: &mut HitRecord<'a>) -> bool;
 }

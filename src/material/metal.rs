@@ -1,6 +1,6 @@
 use crate::{
     colour::Colour,
-    hittable::HitRecord,
+    hittable::hit_record::HitRecord,
     material::Material,
     ray::Ray,
     vec3::{random_unit_vector, reflect, unit_vector},

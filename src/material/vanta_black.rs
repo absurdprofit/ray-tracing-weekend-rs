@@ -1,4 +1,4 @@
-use crate::{colour::Colour, hittable::HitRecord, material::Material, ray::Ray};
+use crate::{colour::Colour, hittable::hit_record::HitRecord, material::Material, ray::Ray};
 
 pub struct VantaBlack;
 

@@ -6,7 +6,7 @@ use enum_dispatch::enum_dispatch;
 
 use crate::{
     colour::Colour,
-    hittable::HitRecord,
+    hittable::hit_record::HitRecord,
     material::{
         dielectric::Dielectric, lambertian::Lambertian, metal::Metal, vanta_black::VantaBlack,
     },

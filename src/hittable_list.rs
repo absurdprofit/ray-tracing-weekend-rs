@@ -1,17 +1,17 @@
 use crate::{
-    hittable::{HitRecord, Hittable},
+    hittable::{Hittable, HittableKind, hit_record::HitRecord},
     interval::Interval,
     material::{MaterialKind, vanta_black::VantaBlack},
     ray::Ray,
     vec3::{Point3, Vec3},
 };
 
-pub struct HittableList<T: Hittable> {
-    pub objects: Vec<T>,
+pub struct HittableList {
+    pub objects: Vec<HittableKind>,
 }
 
 const DEFAULT_MATERIAL: MaterialKind = MaterialKind::VantaBlack(VantaBlack);
-impl<T: Hittable> HittableList<T> {
+impl HittableList {
     pub fn new() -> Self {
         Self { objects: vec![] }
     }

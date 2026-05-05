@@ -2,21 +2,20 @@ mod camera;
 mod colour;
 mod common;
 mod hittable;
-mod hittable_list;
+pub mod hittable_list;
 mod interval;
 mod material;
 mod ray;
-mod sphere;
 mod vec3;
 use crate::{
     camera::Camera,
     colour::Colour,
+    hittable::{HittableKind, sphere::Sphere},
     hittable_list::HittableList,
     material::{
         MaterialKind, dielectric::Dielectric, lambertian::Lambertian, metal::Metal,
         vanta_black::VantaBlack,
     },
-    sphere::Sphere,
     vec3::{Point3, Vec3},
 };
 use std::fs::File;
@@ -37,36 +36,36 @@ fn main() -> Result<()> {
     let material_right = MaterialKind::Metal(Metal::new(Colour::from_tuple((0.8, 0.6, 0.2)), 1.0));
     let material_vanta_black = MaterialKind::VantaBlack(VantaBlack);
 
-    world.objects.push(Sphere::new(
+    world.objects.push(HittableKind::Sphere(Sphere::new(
         Point3::from_tuple((0.0, -100.5, -1.0)),
         100.0,
         material_ground,
-    ));
-    world.objects.push(Sphere::new(
+    )));
+    world.objects.push(HittableKind::Sphere(Sphere::new(
         Point3::from_tuple((0.0, 0.0, -1.2)),
         0.5,
         material_centre,
-    ));
-    world.objects.push(Sphere::new(
+    )));
+    world.objects.push(HittableKind::Sphere(Sphere::new(
         Point3::from_tuple((-1.0, 0.0, -1.0)),
         0.5,
         material_left,
-    ));
-    world.objects.push(Sphere::new(
+    )));
+    world.objects.push(HittableKind::Sphere(Sphere::new(
         Point3::from_tuple((-1.0, 0.0, -1.0)),
         0.4,
         material_bubble,
-    ));
-    world.objects.push(Sphere::new(
+    )));
+    world.objects.push(HittableKind::Sphere(Sphere::new(
         Point3::from_tuple((1.0, 0.0, -1.0)),
         0.5,
         material_right,
-    ));
-    world.objects.push(Sphere::new(
+    )));
+    world.objects.push(HittableKind::Sphere(Sphere::new(
         Point3::from_tuple((2.0, 0.5, -2.0)),
         0.5,
         material_vanta_black,
-    ));
+    )));
 
     camera.set_resolution(camera::Resolution::QHD);
     camera.samples_per_pixel = 100;

@@ -1,6 +1,7 @@
 use crate::{
     colour::Colour,
     common::random_double,
+    hittable::hit_record::HitRecord,
     material::Material,
     ray::Ray,
     vec3::{dot, reflect, refract, unit_vector},
@@ -26,7 +27,7 @@ impl Material for Dielectric {
     fn scatter(
         &self,
         r_in: crate::ray::Ray,
-        rec: &crate::hittable::HitRecord,
+        rec: &HitRecord,
         attenuation: &mut crate::colour::Colour,
         scattered: &mut crate::ray::Ray,
     ) -> bool {
