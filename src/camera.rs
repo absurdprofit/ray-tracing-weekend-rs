@@ -64,7 +64,7 @@ impl<W: Write> Camera<W> {
         self.writer.write_all(b"\n255\n")?;
         for j in 0..image_height {
             let percentage = (j as f64 / (image_height - 1) as f64) * 100.0;
-            print!("\rRendering: {:.2}%", percentage);
+            print!("\rRendering: {:.2}", percentage);
             for i in 0..self.image_width {
                 let mut pixel_colour = Colour::new();
                 for _ in 0..self.samples_per_pixel {
